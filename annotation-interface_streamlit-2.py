@@ -11,7 +11,7 @@ import fitz  # PyMuPDF
 if 'pdf_file_path' not in st.session_state:
     st.session_state.pdf_file_path = None
 
-with open( "src/scripts/style.css" ) as css:
+with open( "style.css" ) as css:
     st.markdown( f'<style>{css.read()}</style>' , unsafe_allow_html= True)
 
 def download_file_from_s3_and_convert_to_pdf(company_number, bucket_name='company-house'):
