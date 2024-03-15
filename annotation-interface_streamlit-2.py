@@ -89,17 +89,15 @@ if col1.button("Retrieve XHTML and Convert to PDF"):
     else:
         st.error("XHTML file not found for the given company number.")
 
-if st.button("Upload Annotations"):
-    uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_uploader")
-    if uploaded_pdf is not None:
-        with open(uploaded_pdf.name, "wb") as f:
-            f.write(uploaded_pdf.getbuffer())
-        st.session_state.pdf_file_path = uploaded_pdf.name
-        upload_status = upload_annotations_to_s3(company_number, st.session_state.pdf_file_path)
-        if upload_status:
-            st.success("Annotations successfully uploaded to S3.")
-        else:
-            st.error("Failed to upload annotations.")
-    elif uploaded_pdf is None:
-        st.error("Please upload a PDF file.")
-
+uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_uploader")
+if uploaded_pdf is not None and st.button("Upload Annotations"):
+    with open(uploaded_pdf.name, "wb") as f:
+        f.write(uploaded_pdf.getbuffer())
+    st.session_state.pdf_file_path = uploaded_pdf.name
+    upload_status = upload_annotations_to_s3(company_number, st.session_state.pdf_file_path)
+    if upload_status:
+        st.success("Annotations successfully uploaded to S3.")
+    else:
+        st.error("Failed to upload annotations.")
+elif uploaded_pdf is None and st.button("Upload Annotations"):
+    st.error("Please upload a PDF file.")
