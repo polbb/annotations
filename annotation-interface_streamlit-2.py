@@ -70,6 +70,7 @@ def upload_annotations_to_s3(company_number, pdf_path, bucket_name='company-hous
     
     os.remove(annotations_file_path)  # Clean up local file
     st.success(f"Annotations successfully uploaded to S3 with key: {s3_key}")
+    st.write(f"{annotations}")
     return s3_key
 
 st.title("ArgoXai")
