@@ -24,10 +24,6 @@ def download_file_from_s3_and_convert_to_pdf(company_number, bucket_name='compan
     output_pdf_path = os.path.join(annotations_dir, f"{company_number}.pdf")
     pdfkit.from_file(xhtml_file_path, output_pdf_path)
     
-    # Automatically open the PDF in Mac OS Preview
-    subprocess.run(['open', '-a', 'Preview', output_pdf_path], check=True)
-    st.write(output_pdf_path)
-    
     st.session_state.pdf_file_path = output_pdf_path
     
     return output_pdf_path
@@ -79,16 +75,18 @@ company_number = col1.text_input("Enter the company number")
 
 if col1.button("Retrieve XHTML and Convert to PDF"):
     st.session_state.pdf_file_path = download_file_from_s3_and_convert_to_pdf(company_number)
-    st.write(f'pdf path from inside if: {st.session_state.pdf_file_path}')
     if st.session_state.pdf_file_path:
-        st.success("PDF successfully generated and opened in Preview.")
+        with open(st.session_state.pdf_file_path, "rb") as pdf_file:
+            pdf_bytes = pdf_file.read()
+            st.download_button(label="Download PDF",
+                               data=pdf_bytes,
+                               file_name=f"{company_number}.pdf",
+                               mime="application/pdf")
+        st.success("PDF successfully generated. Please download using the button above.")
     else:
         st.error("XHTML file not found for the given company number.")
 
-st.write(f'pdf path after retrievinmg /pdf: {st.session_state.pdf_file_path}')
-
 if st.button("Upload Annotations"):
-    st.write(f'pdf path inside upload button: {st.session_state.pdf_file_path}')
     upload_status = upload_annotations_to_s3(company_number, st.session_state.pdf_file_path)
     if upload_status:
         st.success("Annotations successfully uploaded to S3.")
