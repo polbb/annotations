@@ -86,7 +86,7 @@ st.subheader('Convert xhtml to pdf')
 col1, col2, col3, c4, c5, c6, c7 ,c8 = st.columns([5,3,1,1,1,1,1,1])
 company_number = col1.text_input("Enter the company number")
 
-if col1.button("Retrieve XHTML and Convert to PDF"):
+if col1.button("Convert"):
     st.session_state.pdf_file_path = download_file_from_s3_and_convert_to_pdf(company_number)
     if st.session_state.pdf_file_path:
         annotations_dir = "annotations"
@@ -111,7 +111,7 @@ st.subheader('Upload annotations to AWS')
 
 uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_uploader")
 
-if uploaded_pdf is not None and st.button("Upload Annotations"):
+if uploaded_pdf is not None and st.button("Upload"):
     with open(uploaded_pdf.name, "wb") as f:
         f.write(uploaded_pdf.getbuffer())
     st.session_state.pdf_file_path = uploaded_pdf.name
