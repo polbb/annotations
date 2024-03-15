@@ -11,6 +11,9 @@ import fitz  # PyMuPDF
 if 'pdf_file_path' not in st.session_state:
     st.session_state.pdf_file_path = None
 
+with open( "src/scripts/style.css" ) as css:
+    st.markdown( f'<style>{css.read()}</style>' , unsafe_allow_html= True)
+
 def download_file_from_s3_and_convert_to_pdf(company_number, bucket_name='company-house'):
     s3 = boto3.client('s3')
     s3_key = f"xhtml/{company_number}.xhtml"
@@ -75,6 +78,8 @@ def upload_annotations_to_s3(company_number, pdf_path, bucket_name='company-hous
 
 st.title("ArgoXai")
 st.subheader("XHTML annotation")
+
+st.divider()
 
 col1, col2, col3, c4, c5, c6, c7 ,c8 = st.columns([3,3,1,1,1,1,1,1])
 company_number = col1.text_input("Enter the company number")
