@@ -40,6 +40,7 @@ def extract_annotations(pdf_path):
                         'type': annotation.type[0],
                         'rect': [annotation.rect.x0, annotation.rect.y0, annotation.rect.x1, annotation.rect.y1],  # Convert Rect to list
                         'content': annotation.info.get('content', ''),
+                        'info': annotation.info
                     }
                     if annotation.type[0] == 8:  # Highlight
                         adjusted_rect = fitz.Rect(annotation.rect.x0, annotation.rect.y0, annotation.rect.x1, annotation.rect.y1 - 1)
