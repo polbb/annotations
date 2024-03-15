@@ -30,31 +30,39 @@ def download_file_from_s3_and_convert_to_pdf(company_number, bucket_name='compan
 
 def extract_annotations(pdf_path):
     annotations = []
+    annotator_name = None  # Initialize annotator_name as None
     with fitz.open(pdf_path) as pdf_doc:
         for page_number in range(len(pdf_doc)):
             page = pdf_doc.load_page(page_number)
             page_annotations = page.annots()
             if page_annotations:  # Check if there are any annotations on the page
                 for annotation in page_annotations:
+                    annotation_info = annotation.info
                     annotation_dict = {
                         'type': annotation.type[0],
                         'rect': [annotation.rect.x0, annotation.rect.y0, annotation.rect.x1, annotation.rect.y1],  # Convert Rect to list
-                        'content': annotation.info.get('content', ''),
-                        'info': annotation.info
+                        'content': annotation_info.get('content', ''),
+                        'info': annotation_info
                     }
+                    if 'title' in annotation_info:  # Check if 'title' (annotator's name) exists
+                        annotator_name = annotation_info['title']  # Assign annotator's name
                     if annotation.type[0] == 8:  # Highlight
                         adjusted_rect = fitz.Rect(annotation.rect.x0, annotation.rect.y0, annotation.rect.x1, annotation.rect.y1 - 1)
                         highlighted_text = page.get_textbox(adjusted_rect)
                         annotation_dict['highlighted_text'] = highlighted_text
                     annotations.append(annotation_dict)
-    return annotations
+    return annotations, annotator_name  # Return annotations and annotator_name
 
 def upload_annotations_to_s3(company_number, pdf_path, bucket_name='company-house'):
     s3 = boto3.client('s3')
-    annotations = extract_annotations(pdf_path)
+    annotations, annotator_name = extract_annotations(pdf_path)  # Extract annotations and annotator_name
+    if not annotations:  # Check if there are no annotations
+        st.error("No annotations found in the PDF.")
+        return None
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    s3_key = f"annotations/{company_number}_{timestamp}.json"
-    annotations_file_path = f"/tmp/{company_number}_{timestamp}.json"
+    annotator_name = annotator_name.replace(" ", "_") if annotator_name else "Unknown_Annotator"  # Replace spaces with underscores or use "Unknown_Annotator"
+    s3_key = f"annotations/{company_number}_{annotator_name}_{timestamp}.json"
+    annotations_file_path = f"/tmp/{company_number}_{annotator_name}_{timestamp}.json"
     with open(annotations_file_path, 'w') as file:
         json.dump({'annotations': annotations}, file, indent=4)  # Wrap annotations list in a dictionary before dumping to JSON
     
