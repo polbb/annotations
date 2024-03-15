@@ -81,7 +81,7 @@ st.subheader("XHTML annotation")
 
 st.divider()
 
-col1, col2, col3, c4, c5, c6, c7 ,c8 = st.columns([3,3,1,1,1,1,1,1])
+col1, col2, col3, c4, c5, c6, c7 ,c8 = st.columns([5,3,1,1,1,1,1,1])
 company_number = col1.text_input("Enter the company number")
 
 if col1.button("Retrieve XHTML and Convert to PDF"):
