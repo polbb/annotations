@@ -97,7 +97,9 @@ if col1.button("Retrieve XHTML and Convert to PDF"):
 if st.button("Upload Annotations"):
     uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf")
     if uploaded_pdf is not None:
+        st.write(f'inside uploader if: {uploaded_pdf.name}')
         with open(uploaded_pdf.name, "wb") as f:
+            st.write(f'inside open: {uploaded_pdf.name}')
             f.write(uploaded_pdf.getbuffer())
         st.session_state.pdf_file_path = uploaded_pdf.name
         upload_status = upload_annotations_to_s3(company_number, st.session_state.pdf_file_path)
