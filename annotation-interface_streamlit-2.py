@@ -77,9 +77,11 @@ def upload_annotations_to_s3(company_number, pdf_path, bucket_name='company-hous
     return s3_key
 
 st.title("ArgoXai")
-st.subheader("Annotation tool")
+st.header("Annotation tool")
 
 st.divider()
+
+st.subheader('Convert xhtml to pdf')
 
 col1, col2, col3, c4, c5, c6, c7 ,c8 = st.columns([5,3,1,1,1,1,1,1])
 company_number = col1.text_input("Enter the company number")
@@ -105,7 +107,7 @@ if col1.button("Retrieve XHTML and Convert to PDF"):
         st.error("XHTML file not found for the given company number.")
 
 st.divider()
-st.header('Upload annotations to AWS')
+st.subheader('Upload annotations to AWS')
 
 uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_uploader")
 
