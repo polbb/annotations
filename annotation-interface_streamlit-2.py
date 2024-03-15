@@ -77,7 +77,7 @@ def upload_annotations_to_s3(company_number, pdf_path, bucket_name='company-hous
     return s3_key
 
 st.title("ArgoXai")
-st.subheader("XHTML annotation")
+st.subheader("Annotation tool")
 
 st.divider()
 
