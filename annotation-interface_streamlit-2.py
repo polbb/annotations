@@ -99,6 +99,9 @@ if col1.button("Retrieve XHTML and Convert to PDF"):
     else:
         st.error("XHTML file not found for the given company number.")
 
+st.divider()
+
+
 uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_uploader")
 if uploaded_pdf is not None and st.button("Upload Annotations"):
     with open(uploaded_pdf.name, "wb") as f:
