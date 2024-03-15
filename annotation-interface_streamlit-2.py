@@ -111,7 +111,7 @@ st.subheader('Upload annotations to AWS')
 
 uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_uploader")
 
-if uploaded_pdf is not None and st.button("Upload"):
+if uploaded_pdf is not None and st.button("Upload PDF"):
     with open(uploaded_pdf.name, "wb") as f:
         f.write(uploaded_pdf.getbuffer())
     st.session_state.pdf_file_path = uploaded_pdf.name
