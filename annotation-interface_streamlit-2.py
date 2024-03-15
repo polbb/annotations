@@ -76,11 +76,14 @@ company_number = col1.text_input("Enter the company number")
 if col1.button("Retrieve XHTML and Convert to PDF"):
     st.session_state.pdf_file_path = download_file_from_s3_and_convert_to_pdf(company_number)
     if st.session_state.pdf_file_path:
-        with open(st.session_state.pdf_file_path, "rb") as pdf_file:
+        annotations_dir = "annotations"
+        if not os.path.exists(annotations_dir):
+            os.makedirs(annotations_dir)
+        with open(os.path.join(annotations_dir, st.session_state.pdf_file_path), "rb") as pdf_file:
             pdf_bytes = pdf_file.read()
             st.download_button(label="Download PDF",
                                data=pdf_bytes,
-                               file_name=f"{company_number}.pdf",
+                               file_name=os.path.join(annotations_dir, f"{company_number}.pdf"),
                                mime="application/pdf")
         st.success("PDF successfully generated. Please download using the button above.")
     else:
