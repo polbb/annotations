@@ -46,25 +46,21 @@ def extract_annotations(pdf_path):
                         highlighted_text = page.get_textbox(adjusted_rect)
                         annotation_dict['highlighted_text'] = highlighted_text
                     annotations.append(annotation_dict)
-                    st.write(f'annotations from inside fn: {annotations}')
     return annotations
 
 def upload_annotations_to_s3(company_number, pdf_path, bucket_name='company-house'):
     s3 = boto3.client('s3')
     annotations = extract_annotations(pdf_path)
-    st.write(f'annotations: {annotations}')
-    st.write(f'pdf path: {pdf_path}')
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     s3_key = f"annotations/{company_number}_{timestamp}.json"
     annotations_file_path = f"/tmp/{company_number}_{timestamp}.json"
     with open(annotations_file_path, 'w') as file:
-        # Dump the JSON with an indentation of 4 spaces
         json.dump({'annotations': annotations}, file, indent=4)  # Wrap annotations list in a dictionary before dumping to JSON
     
-    # Set the Content-Type metadata to application/json
     s3.upload_file(annotations_file_path, bucket_name, s3_key, ExtraArgs={'ContentType': 'application/json'})
     
     os.remove(annotations_file_path)  # Clean up local file
+    st.success(f"Annotations successfully uploaded to S3 with key: {s3_key}")
     return s3_key
 
 st.title("ArgoXai")
@@ -79,7 +75,6 @@ if col1.button("Retrieve XHTML and Convert to PDF"):
         annotations_dir = "annotations"
         if not os.path.exists(annotations_dir):
             os.makedirs(annotations_dir)
-        # Corrected the path concatenation to ensure the file is found
         pdf_file_full_path = os.path.join(annotations_dir, os.path.basename(st.session_state.pdf_file_path))
         try:
             with open(pdf_file_full_path, "rb") as pdf_file:
@@ -94,18 +89,15 @@ if col1.button("Retrieve XHTML and Convert to PDF"):
     else:
         st.error("XHTML file not found for the given company number.")
 
-if st.button("Upload Annotations"):
-    uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf")
-    if uploaded_pdf is not None:
-        st.write(f'inside uploader if: {uploaded_pdf.name}')
-        with open(uploaded_pdf.name, "wb") as f:
-            st.write(f'inside open: {uploaded_pdf.name}')
-            f.write(uploaded_pdf.getbuffer())
-        st.session_state.pdf_file_path = uploaded_pdf.name
-        upload_status = upload_annotations_to_s3(company_number, st.session_state.pdf_file_path)
-        if upload_status:
-            st.success("Annotations successfully uploaded to S3.")
-        else:
-            st.error("Failed to upload annotations.")
+uploaded_pdf = st.file_uploader("Choose a PDF file", type="pdf", key="pdf_uploader")
+if uploaded_pdf is not None and st.button("Upload Annotations"):
+    with open(uploaded_pdf.name, "wb") as f:
+        f.write(uploaded_pdf.getbuffer())
+    st.session_state.pdf_file_path = uploaded_pdf.name
+    upload_status = upload_annotations_to_s3(company_number, st.session_state.pdf_file_path)
+    if upload_status:
+        st.success("Annotations successfully uploaded to S3.")
     else:
-        st.error("Please upload a PDF file.")
+        st.error("Failed to upload annotations.")
+elif uploaded_pdf is None and st.button("Upload Annotations"):
+    st.error("Please upload a PDF file.")
